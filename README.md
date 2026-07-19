@@ -2,7 +2,7 @@
 
 ---
 
-![演示](../screenshots/screenshot.jpg "演示")
+![演示](screenshots/screenshot.jpg "演示")
 
 ---
 
