@@ -267,8 +267,8 @@ package-release.bat 1.0.0
 
 ## 版权归属
 
-Dangerous Driving 由 Three Fields Entertainment 创作
-Dangerous Driving 是 Three Fields Entertainment Limited 的商标
+Dangerous Driving 由 Three Fields Entertainment 创作  
+Dangerous Driving 是 Three Fields Entertainment Limited 的商标  
 
 ---
 
@@ -543,6 +543,6 @@ This release candidate explicitly pins all DirectSound/COM export ordinals in `d
 
 ## Copyright Ownership
 
-Dangerous Driving created by Three Fields Entertainment.
-Dangerous Driving is a trademark of Three Fields Entertainment Limited.
+Dangerous Driving created by Three Fields Entertainment.  
+Dangerous Driving is a trademark of Three Fields Entertainment Limited.   
 
