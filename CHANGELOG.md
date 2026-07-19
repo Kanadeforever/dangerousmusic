@@ -1,5 +1,21 @@
 ﻿# 变更记录 / Changelog
 
+## 2026-07-19 — 纯源码文档审校版
+
+- 修正《INI配置说明》中仍停留在早期“仅拦截 PreviousTrack/NextTrack”的旧描述，更新为方向会话状态机与五个媒体入口统一硬门。
+- 修正 `AlbumControls.h` 顶部注释，明确游戏侧方向键清除只有在命中实际 XInput 路径时成立；媒体硬门不依赖扫描结果。
+- 加强发行质量脚本：方法注释必须包含具实质内容的中文，并验证当前输入文档不会退回旧方案。
+- 源码包移除对象文件、PDB、构建日志和 Python 缓存，只保留可重建源码、脚本、配置、语言资源与验证记录。
+- 运行时代码和严格输入互斥行为未改变。
+
+## 2026-07-19 — Clean source documentation audit
+
+- Updates the stale INI manual text from the early PreviousTrack/NextTrack-only gate to the held-direction state machine and the shared five-entry media gate.
+- Clarifies in `AlbumControls.h` that game-side D-pad removal depends on capturing the actual XInput path, while the media gate does not depend on scan results.
+- Strengthens release checks so method comments must contain substantive Chinese text and current input documentation cannot regress to the old design.
+- Removes object files, PDBs, build logs, and Python caches from the source archive.
+- Runtime code and strict input-isolation behavior are unchanged.
+
 ## 2026-07-19 — 严格输入互斥修复版
 
 - 将十字键从单帧条件判断改为按住周期状态机；方向键按下沿锁定为普通、`LB`、`BACK` 或 `BACK+LB`，完全释放前不允许切换模式。

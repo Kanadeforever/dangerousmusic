@@ -219,7 +219,9 @@ BottomRight
 | `BACK + LB + 右` | 提高不透明度 |
 | `BACK + R3` | 重置锚点、位置、大小和透明度 |
 
-按住 `BACK` 时，布局模式优先于普通 `LB + 十字键` 专辑/模式控制。LocalMusic 会尝试覆盖游戏目录内模块的普通 `XInputGetState`、序号 100 的 `XInputGetStateEx`、`XInputGetKeystroke` 和已缓存函数指针；命中时会从游戏侧状态中清除十字键、`LB`、`R3`。部分 UE4 输入路径可能无法被扫描到，因此发行版同时在游戏的 PreviousTrack/NextTrack Hook 中同步读取原始 XInput：BACK 按住期间及松开后 750 毫秒内，游戏来源的换曲调用都会被拒绝。这样可以保证布局调整不换歌，但在扫描累计为 0 时，游戏菜单仍可能响应上下方向。
+手柄方向键采用按住周期互斥状态机。每个方向只在按下沿锁定为“普通、`LB`、`BACK`、`BACK+LB`”之一，完全释放前不会因中途增加或松开修饰键而切换功能；修饰键应先按下或与方向键同时按下。`LB+方向键`、`BACK+方向键`、`BACK+LB+方向键` 会分别只执行专辑/模式、位置、缩放/透明度动作。组合会话期间以及释放后的 750 毫秒吸收窗口内，游戏来源的 `PreviousTrack`、`NextTrack`、`Pause`、`Play`、`Unpause` 五个媒体入口都会被统一拒绝，避免换曲、播放、暂停和恢复互相污染。
+
+LocalMusic 仍会尝试覆盖游戏目录内模块的普通 `XInputGetState`、序号 100 的 `XInputGetStateEx`、`XInputGetKeystroke` 和已缓存函数指针；只有命中这些路径时，十字键、`LB`、`R3` 才会从返回给游戏的输入状态中清除。部分 UE4 输入路径可能绕过扫描，因此累计捕获数为 0 时，游戏菜单仍可能看到方向输入；但上述五个媒体入口的同步硬门不依赖扫描结果，插件组合不会再改变曲目或播放状态。
 
 ### 键盘
 
@@ -540,7 +542,9 @@ Each step changes position by `8` physical pixels.
 | `BACK + LB + Right` | Increase opacity |
 | `BACK + R3` | Reset anchor, position, size, and opacity |
 
-While `BACK` is held, layout mode takes priority over normal `LB + D-pad` album and play-mode controls. LocalMusic attempts to cover normal `XInputGetState`, ordinal-100 `XInputGetStateEx`, `XInputGetKeystroke`, and cached XInput pointers in modules under the game directory; when found, the D-pad, `LB`, and `R3` are removed from the state returned to the game. Some UE4 input paths may bypass the scan, so the release build also checks raw XInput synchronously inside the game PreviousTrack/NextTrack hooks. Game-originated skips are rejected while `BACK` is held and for 750 ms after release. This guarantees that layout editing does not change tracks, although menus may still react to vertical navigation when the cumulative capture count is zero.
+Controller directions use a held-session isolation state machine. Each direction locks to exactly one mode—Plain, `LB`, `BACK`, or `BACK+LB`—on its rising edge and cannot change function until fully released; press the modifier first or together with the direction. `LB+D-pad`, `BACK+D-pad`, and `BACK+LB+D-pad` therefore perform only album/mode, position, or scale/opacity actions respectively. During those sessions and the 750 ms post-release absorption window, all game-originated `PreviousTrack`, `NextTrack`, `Pause`, `Play`, and `Unpause` entries are rejected by one shared media gate, preventing skip/play/pause/resume cross-contamination.
+
+LocalMusic still attempts to capture normal `XInputGetState`, ordinal-100 `XInputGetStateEx`, `XInputGetKeystroke`, and cached XInput pointers in modules under the game directory. The D-pad, `LB`, and `R3` are removed from the state returned to the game only when one of those paths is actually captured. Some UE4 input paths may bypass the scan, so menus may still see directional input when the cumulative capture count is zero; the five-entry synchronous media gate does not depend on that scan and still prevents plugin chords from changing tracks or playback state.
 
 ### Keyboard
 

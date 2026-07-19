@@ -33,19 +33,24 @@ def require(condition: bool, message: str) -> None:
     print(f"[通过] {message}")
 
 
-def previous_comment(lines: list[str], index: int) -> bool:
-    """判断指定行之前最近的非空行是否属于 C/C++ 注释。
+def previous_comment(lines: list[str], index: int) -> str:
+    """返回指定行之前连续的 C/C++ 注释块；不存在时返回空字符串。
 
-    index 使用零基下标。连续 `//`、块注释结尾和块注释中间行都视为说明；
-    预处理指令和普通代码不视为方法注释。
+    index 使用零基下标。方法说明不仅要“有注释符号”，还必须包含实质性的
+    简体中文内容，避免一行英文或占位注释被误判为完整交接说明。
     """
     cursor = index - 1
     while cursor >= 0 and not lines[cursor].strip():
         cursor -= 1
-    if cursor < 0:
-        return False
-    text = lines[cursor].lstrip()
-    return text.startswith("//") or text.startswith("*") or text.endswith("*/")
+    block: list[str] = []
+    while cursor >= 0:
+        text = lines[cursor].strip()
+        if text.startswith("//") or text.startswith("*") or text.startswith("/*") or text.endswith("*/"):
+            block.append(text)
+            cursor -= 1
+            continue
+        break
+    return "\n".join(reversed(block))
 
 
 def cpp_function_starts(path: Path) -> list[tuple[int, str]]:
@@ -105,9 +110,11 @@ def check_cpp_comments() -> None:
         lines = text.splitlines()
         if path.suffix == ".cpp":
             for line_no, signature in cpp_function_starts(path):
-                if not previous_comment(lines, line_no - 1):
+                comment = previous_comment(lines, line_no - 1)
+                compact = re.sub(r"[/\*\s]", "", comment)
+                if not CHINESE_RE.search(comment) or len(compact) < 8:
                     missing.append(f"{path.name}:{line_no}: {signature}")
-    require(not missing, "每个 C++ 文件和方法都有相邻的详细中文注释" +
+    require(not missing, "每个 C++ 文件和方法都有相邻且具实质内容的中文注释" +
             ("；遗漏：" + " | ".join(missing[:12]) if missing else ""))
 
 
@@ -135,6 +142,7 @@ def check_bilingual_documents() -> None:
         "INI配置说明.md",
         "CHANGELOG.md",
         "发行检查清单.md",
+        "源码中文与注释审校报告.md",
     ]
     for name in markdown:
         text = (ROOT / name).read_text(encoding="utf-8-sig")
@@ -208,6 +216,22 @@ def check_layout_contract() -> None:
         require(token in overlay, f"通知布局实现包含 {token}")
 
 
+def check_current_input_documentation() -> None:
+    """验证当前文档描述的是严格互斥版，而不是早期只拦截换曲的旧方案。"""
+    ini_doc = (ROOT / "INI配置说明.md").read_text(encoding="utf-8-sig")
+    album_h = (SRC / "AlbumControls.h").read_text(encoding="utf-8-sig")
+    required = (
+        "按住周期互斥状态机",
+        "PreviousTrack`、`NextTrack`、`Pause`、`Play`、`Unpause",
+        "不依赖扫描结果",
+    )
+    for phrase in required:
+        require(phrase in ini_doc, f"INI 配置说明包含最新输入行为：{phrase}")
+    require("只在游戏的 PreviousTrack/NextTrack Hook" not in ini_doc,
+            "INI 配置说明不再保留仅拦截换曲的旧描述")
+    require("命中实际调用路径时" in album_h and "五入口同步硬门" in album_h,
+            "输入层头文件明确区分条件式 XInput 过滤与无条件媒体硬门")
+
 def check_i18n_contract() -> None:
     """调用国际化专用检查，验证语言键、占位符、源码调用和发行文件。"""
     import verify_i18n
@@ -219,6 +243,7 @@ def main() -> int:
     check_python_docstrings()
     check_bilingual_documents()
     check_layout_contract()
+    check_current_input_documentation()
     check_i18n_contract()
     print("\n全部发行质量检查通过。")
     return 0

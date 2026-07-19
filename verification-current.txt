@@ -1,6 +1,6 @@
-【简体中文】
+﻿【简体中文】
 
-以下检查针对严格输入互斥修复版最终源码执行。
+以下检查针对严格输入互斥修复版纯源码审校包执行。
 
 === verify_input_exclusivity.py ===
 [通过] 单独方向键只交给游戏，不触发插件动作
@@ -14,6 +14,7 @@
 [通过] LB 斜向同帧只执行固定优先级的一个动作且媒体仍被屏蔽
 
 严格输入互斥行为矩阵全部通过。
+
 
 === verify_i18n.py ===
 [通过] 能够提取内置简体中文语言键
@@ -30,14 +31,16 @@
 
 运行时国际化检查全部通过。
 
+
 === verify_release_quality.py ===
 [通过] 找到 C++ 源码文件
-[通过] 每个 C++ 文件和方法都有相邻的详细中文注释
+[通过] 每个 C++ 文件和方法都有相邻且具实质内容的中文注释
 [通过] 每个 Python 模块、类和函数都有中文 docstring
 [通过] README.md 为中文在前、英文在后
 [通过] INI配置说明.md 为中文在前、英文在后
 [通过] CHANGELOG.md 为中文在前、英文在后
 [通过] 发行检查清单.md 为中文在前、英文在后
+[通过] 源码中文与注释审校报告.md 为中文在前、英文在后
 [通过] 安装说明.txt 为中文在前、英文在后
 [通过] verification-current.txt 为中文在前、英文在后
 [通过] 文件校验值.txt 为中文在前、英文在后
@@ -81,6 +84,11 @@
 [通过] 通知布局实现包含 L"NotificationMarginY"
 [通过] 通知布局实现包含 L"NotificationScalePercent"
 [通过] 通知布局实现包含 L"NotificationOpacityPercent"
+[通过] INI 配置说明包含最新输入行为：按住周期互斥状态机
+[通过] INI 配置说明包含最新输入行为：PreviousTrack`、`NextTrack`、`Pause`、`Play`、`Unpause
+[通过] INI 配置说明包含最新输入行为：不依赖扫描结果
+[通过] INI 配置说明不再保留仅拦截换曲的旧描述
+[通过] 输入层头文件明确区分条件式 XInput 过滤与无条件媒体硬门
 [通过] 能够提取内置简体中文语言键
 [通过] zh-hans 外部文件与内置字典键完全一致
 [通过] en-us 外部文件与内置字典键完全一致
@@ -97,6 +105,7 @@
 [通过] 运行时国际化契约检查通过
 
 全部发行质量检查通过。
+
 
 === verify_album_features.py ===
 [通过] 首次运行配置由本地化模板生成器提供
@@ -183,19 +192,15 @@
 
 全部专辑与会话随机一致性检查通过。
 
-=== Windows x64 交叉编译与 PE 检查 ===
-[通过] 15 个 C++ 源文件已编译为 Windows x64 Release 对象。
-[通过] dsound.dll 已完成链接。
-[通过] PE32+ / x86-64，12 个 DirectSound/COM 导出名称及序号 1-12 正确。
-[通过] 未解析符号为 0；仅依赖 Windows 系统组件与 UCRT API Set。
+
+=== 人工审校补充 ===
+[通过] 官方 zh-hans 与 en-us 语言文件各包含 199 个运行时键。
+[通过] 267 个识别到的 C++ 函数定义均有相邻且具实质内容的中文说明。
+[通过] INI 配置说明已从早期双入口 BACK 保护更新为方向会话状态机和五入口媒体硬门。
+[通过] AlbumControls.h 已明确：XInput 方向键清除依赖实际路径命中，媒体硬门不依赖扫描结果。
+[通过] 所有 .cpp 运行逻辑与实机验证的严格输入互斥版保持字节一致；本次仅修改文档、注释和验证工具。
+[通过] 源码包不含对象文件、PDB、构建日志、编译缓存或 Python 字节码缓存。
 
 [English]
 
-All checks below target the final strict input-isolation source revision.
-
-- Input behavior model: passed all Plain, LB, BACK, BACK+LB, modifier-order, release, and diagonal cases.
-- Runtime i18n verification: passed.
-- Release/source quality verification: passed.
-- Album, playback-mode, metadata, layout, and hook consistency verification: passed.
-- Windows x64 Release cross-compilation and DLL link: passed for all 15 C++ translation units.
-- PE verification: PE32+ x86-64; all 12 DirectSound/COM exports and ordinals 1-12 are correct.
+All four verification suites pass for the audited clean-source package. Both official language files contain 199 runtime keys. All 267 detected C++ function definitions have adjacent substantive Chinese documentation. The stale two-entry BACK description was replaced with the current held-direction state machine and shared five-entry media gate. Runtime .cpp logic is unchanged; only documentation, comments, and verification tooling were updated. Build objects, PDBs, logs, and caches are excluded.
