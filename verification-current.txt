@@ -1,0 +1,201 @@
+【简体中文】
+
+以下检查针对严格输入互斥修复版最终源码执行。
+
+=== verify_input_exclusivity.py ===
+[通过] 单独方向键只交给游戏，不触发插件动作
+[通过] 先按方向再补 LB 不补触发插件动作，但立即屏蔽媒体污染
+[通过] LB 先按、方向后按只切换循环模式并屏蔽游戏媒体
+[通过] LB 方向会话中途补 BACK 不切换到布局动作
+[通过] BACK+上只移动通知并屏蔽播放/恢复
+[通过] BACK 方向会话中途补 LB 不切换缩放模式
+[通过] BACK+LB+下只缩放通知并屏蔽暂停
+[通过] BACK+LB 会话中途松 LB 不退化为移动模式
+[通过] LB 斜向同帧只执行固定优先级的一个动作且媒体仍被屏蔽
+
+严格输入互斥行为矩阵全部通过。
+
+=== verify_i18n.py ===
+[通过] 能够提取内置简体中文语言键
+[通过] zh-hans 外部文件与内置字典键完全一致
+[通过] en-us 外部文件与内置字典键完全一致
+[通过] 所有 loc::Text/Format 调用键均已定义
+[通过] 官方语言文件占位符与内置文本一致
+[通过] 用户可见中文只存在于国际化字典
+[通过] 主配置默认使用 Language=auto
+[通过] CMake 编译 Localization.cpp
+[通过] 发行脚本复制两份官方语言文件
+[通过] 语言文件名由实际 DLL 主文件名派生
+[通过] 实现指定语言到 en-us 再到内置 zh-hans 的分层回退
+
+运行时国际化检查全部通过。
+
+=== verify_release_quality.py ===
+[通过] 找到 C++ 源码文件
+[通过] 每个 C++ 文件和方法都有相邻的详细中文注释
+[通过] 每个 Python 模块、类和函数都有中文 docstring
+[通过] README.md 为中文在前、英文在后
+[通过] INI配置说明.md 为中文在前、英文在后
+[通过] CHANGELOG.md 为中文在前、英文在后
+[通过] 发行检查清单.md 为中文在前、英文在后
+[通过] 安装说明.txt 为中文在前、英文在后
+[通过] verification-current.txt 为中文在前、英文在后
+[通过] 文件校验值.txt 为中文在前、英文在后
+[通过] dsound.ini 在中文内容后追加英文注释参考
+[通过] 开发者/高级配置参考.ini 在中文内容后追加英文注释参考
+[通过] 示例/文件夹专辑元数据模板.ini 在中文内容后追加英文注释参考
+[通过] 示例/曲目同名元数据模板.ini 在中文内容后追加英文注释参考
+[通过] 布局输入实现包含 kBack
+[通过] 布局输入实现包含 kRightThumb
+[通过] 布局输入实现包含 kLeftShoulder
+[通过] 布局输入实现包含 VK_BACK
+[通过] 布局输入实现包含 VK_OEM_MINUS
+[通过] 布局输入实现包含 VK_OEM_PLUS
+[通过] 布局输入实现包含 kInitialRepeatDelayMs = 350
+[通过] 布局输入实现包含 kRepeatIntervalMs = 60
+[通过] 布局输入实现包含 kKeyboardSaveDelayMs = 1000
+[通过] 手柄布局模式覆盖移动与透明度
+[通过] 键盘 -/= 使用 Alt、Ctrl、Shift 和无修饰分层
+[通过] 输入层调用通知布局重置与保存
+[通过] 游戏侧 XInput 多路径捕获实现包含 InstallGameInputCapture
+[通过] 游戏侧 XInput 多路径捕获实现包含 RefreshGameInputCapture
+[通过] 游戏侧 XInput 多路径捕获实现包含 HookedXInputGetState
+[通过] 游戏侧 XInput 多路径捕获实现包含 HookedXInputGetStateEx
+[通过] 游戏侧 XInput 多路径捕获实现包含 HookedXInputGetKeystroke
+[通过] 游戏侧 XInput 多路径捕获实现包含 FilterGameInput
+[通过] 游戏侧 XInput 多路径捕获实现包含 FilterGameKeystroke
+[通过] 游戏侧 XInput 多路径捕获实现包含 PatchModuleImports
+[通过] 游戏侧 XInput 多路径捕获实现包含 PatchModuleCachedPointers
+[通过] 游戏侧 XInput 多路径捕获实现包含 kLayoutCaptureMask
+[通过] 游戏侧 XInput 多路径捕获实现包含 IMAGE_DIRECTORY_ENTRY_IMPORT
+[通过] 输入捕获覆盖扩展状态与离散按键事件入口
+[通过] BACK 布局模式完整捕获十字键、LB 与 R3
+[通过] 松开 BACK 后持续过滤残留按键直到全部释放
+[通过] 通知类公开布局调整、保存和重置契约
+[通过] 通知布局实现包含 kDefaultMarginX = 32
+[通过] 通知布局实现包含 kDefaultMarginY = 32
+[通过] 通知布局实现包含 kDefaultScalePercent = 100
+[通过] 通知布局实现包含 kDefaultOpacityPercent = 92
+[通过] 通知布局实现包含 kMinimumVisiblePixels = 48
+[通过] 通知布局实现包含 L"NotificationMarginX"
+[通过] 通知布局实现包含 L"NotificationMarginY"
+[通过] 通知布局实现包含 L"NotificationScalePercent"
+[通过] 通知布局实现包含 L"NotificationOpacityPercent"
+[通过] 能够提取内置简体中文语言键
+[通过] zh-hans 外部文件与内置字典键完全一致
+[通过] en-us 外部文件与内置字典键完全一致
+[通过] 所有 loc::Text/Format 调用键均已定义
+[通过] 官方语言文件占位符与内置文本一致
+[通过] 用户可见中文只存在于国际化字典
+[通过] 主配置默认使用 Language=auto
+[通过] CMake 编译 Localization.cpp
+[通过] 发行脚本复制两份官方语言文件
+[通过] 语言文件名由实际 DLL 主文件名派生
+[通过] 实现指定语言到 en-us 再到内置 zh-hans 的分层回退
+
+运行时国际化检查全部通过。
+[通过] 运行时国际化契约检查通过
+
+全部发行质量检查通过。
+
+=== verify_album_features.py ===
+[通过] 首次运行配置由本地化模板生成器提供
+[通过] 发行版普通 INI 仅包含 14 个用户设置且顺序稳定
+[通过] 普通 INI 不再暴露兼容性和 Hook 开发参数
+[通过] 中文 INI 说明包含 Language
+[通过] 中文 INI 说明包含 EnableLogging
+[通过] 中文 INI 说明包含 MusicPath
+[通过] 中文 INI 说明包含 PlayMode
+[通过] 中文 INI 说明包含 Volume
+[通过] 中文 INI 说明包含 ShowNowPlayingNotification
+[通过] 中文 INI 说明包含 ShowPauseNotification
+[通过] 中文 INI 说明包含 ShowResumeNotification
+[通过] 中文 INI 说明包含 NotificationDurationMs
+[通过] 中文 INI 说明包含 NotificationScalePercent
+[通过] 中文 INI 说明包含 NotificationOpacityPercent
+[通过] 中文 INI 说明包含 NotificationPosition
+[通过] 中文 INI 说明包含 NotificationMarginX
+[通过] 中文 INI 说明包含 NotificationMarginY
+[通过] 开发者高级参考保留 EnableFolderAlbums
+[通过] 开发者高级参考保留 EnableSidecarMetadata
+[通过] 开发者高级参考保留 AutoAdvance
+[通过] 开发者高级参考保留 PreloadNextTrack
+[通过] 开发者高级参考保留 BypassSpotifyAuthentication
+[通过] 开发者高级参考保留 StrictVersion
+[通过] 高级参考将不可靠的菜单导航抑制默认关闭
+[通过] 源码发行默认关闭实验性菜单导航抑制
+[通过] README 与源码包含自动发行打包脚本
+[通过] 源码包含默认开启的日志总开关
+[通过] 日志总开关在 Logger::Initialize 前预读
+[通过] 关闭日志时跳过日志文件初始化
+[通过] 随机模式生成固定会话乱序队列
+[通过] 下一曲沿队列游标移动
+[通过] 上一曲可沿固定队列真实回退
+[通过] 播放模式立即写回同名 dsound.ini
+[通过] 专辑内曲目只按主文件名自然排序
+[通过] 碟号与曲号元数据不再参与播放顺序
+[通过] 专辑按相对文件夹路径自然排序
+[通过] 固定键盘映射包含 VK_INSERT
+[通过] 固定键盘映射包含 VK_PRIOR
+[通过] 固定键盘映射包含 VK_HOME
+[通过] 固定手柄映射使用 LB+十字键
+[通过] 方向按住周期锁定为 Plain/LB/BACK/BACK+LB 单一模式
+[通过] 组合键媒体硬门不依赖游戏 XInput 槽位扫描
+[通过] 上一曲、下一曲、暂停、播放和恢复统一经过组合键硬门
+[通过] 插件组合只在方向键按下沿决定，后按修饰键不会补触发
+[通过] 布局输入实现包含 kBack
+[通过] 布局输入实现包含 kRightThumb
+[通过] 布局输入实现包含 VK_BACK
+[通过] 布局输入实现包含 VK_OEM_MINUS
+[通过] 布局输入实现包含 VK_OEM_PLUS
+[通过] 手柄 BACK+LB 分别调整透明度和缩放
+[通过] 输入层支持布局重置和持久化
+[通过] 键盘布局调整停止 1 秒后才保存
+[通过] 游戏侧 XInput 多路径捕获包含 InstallGameInputCapture
+[通过] 游戏侧 XInput 多路径捕获包含 RefreshGameInputCapture
+[通过] 游戏侧 XInput 多路径捕获包含 HookedXInputGetState
+[通过] 游戏侧 XInput 多路径捕获包含 HookedXInputGetStateEx
+[通过] 游戏侧 XInput 多路径捕获包含 HookedXInputGetKeystroke
+[通过] 游戏侧 XInput 多路径捕获包含 FilterGameInput
+[通过] 游戏侧 XInput 多路径捕获包含 FilterGameKeystroke
+[通过] 游戏侧 XInput 多路径捕获包含 kLayoutCaptureMask
+[通过] 游戏侧 XInput 多路径捕获包含 IMAGE_DIRECTORY_ENTRY_IMPORT
+[通过] 游戏侧 XInput 多路径捕获包含 CreateToolhelp32Snapshot
+[通过] 游戏侧 XInput 多路径捕获包含 PatchModuleCachedPointers
+[通过] 输入捕获覆盖 XInputGetStateEx 与 XInputGetKeystroke 序号入口
+[通过] BACK 布局模式完整屏蔽游戏侧十字键、LB 和 R3
+[通过] BACK 松开后残留捕获键继续屏蔽到全部释放
+[通过] 输入状态保留键盘延迟保存与手柄未保存标记
+[通过] 通知层公开布局调整、保存和重置接口
+[通过] 通知绘制包含可见区域保护和实时透明度
+[通过] 布局保存只更新相关 INI 键
+[通过] 曲目侧挂 INI 与音频使用相同主文件名
+[通过] 曲目外部封面与音频使用相同主文件名
+[通过] 文件夹专辑读取 album.ini
+[通过] 封面优先级包含内嵌、同名图片与专辑封面
+[通过] 通知层支持专辑切换和播放模式提示
+[通过] CMake 已编入固定输入模块
+[通过] 中英双语 README 明确文件夹专辑并排除 ZIP
+[通过] README 采用完整中文后追加英文结构
+[通过] INI 说明采用完整中文后追加英文结构
+[通过] README 记录手柄/键盘重置与透明度调整
+[通过] 结构体默认播放模式为顺序播放
+
+全部专辑与会话随机一致性检查通过。
+
+=== Windows x64 交叉编译与 PE 检查 ===
+[通过] 15 个 C++ 源文件已编译为 Windows x64 Release 对象。
+[通过] dsound.dll 已完成链接。
+[通过] PE32+ / x86-64，12 个 DirectSound/COM 导出名称及序号 1-12 正确。
+[通过] 未解析符号为 0；仅依赖 Windows 系统组件与 UCRT API Set。
+
+[English]
+
+All checks below target the final strict input-isolation source revision.
+
+- Input behavior model: passed all Plain, LB, BACK, BACK+LB, modifier-order, release, and diagonal cases.
+- Runtime i18n verification: passed.
+- Release/source quality verification: passed.
+- Album, playback-mode, metadata, layout, and hook consistency verification: passed.
+- Windows x64 Release cross-compilation and DLL link: passed for all 15 C++ translation units.
+- PE verification: PE32+ x86-64; all 12 DirectSound/COM exports and ordinals 1-12 are correct.

@@ -1,0 +1,20 @@
+; dsound.dll 代理导出清单。
+; DirectSound 支持按名称导入，也支持按序号导入。游戏或系统组件若按序号
+; 请求导出，序号必须与真实 Windows dsound.dll 保持稳定一致，否则进程会在
+; DllMain 前由加载器直接报“无法定位序数”。因此这里显式固定所有 12 个导出。
+LIBRARY "dsound"
+EXPORTS
+    DirectSoundCaptureCreate       @1
+    DirectSoundCaptureCreate8      @2
+    DirectSoundCaptureEnumerateA   @3
+    DirectSoundCaptureEnumerateW   @4
+    DirectSoundCreate              @5
+    DirectSoundCreate8             @6
+    DirectSoundEnumerateA          @7
+    DirectSoundEnumerateW          @8
+    DirectSoundFullDuplexCreate    @9
+    ; 这两个名称是 COM 标准入口。PRIVATE 只阻止它们进入普通导入库，
+    ; 不会从最终 dsound.dll 的导出表中移除，因此系统转发行为保持不变。
+    DllCanUnloadNow                @10 PRIVATE
+    DllGetClassObject              @11 PRIVATE
+    GetDeviceID                    @12
