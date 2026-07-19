@@ -134,11 +134,11 @@ XInput 手柄：
 | 组合 | 功能 |
 |---|---|
 | 按住 `BACK` + 十字键 | 按画面方向移动通知 |
-| `BACK + LB + 十字键上` | 放大通知 |
-| `BACK + LB + 十字键下` | 缩小通知 |
-| `BACK + LB + 十字键左` | 降低背景不透明度 |
-| `BACK + LB + 十字键右` | 提高背景不透明度 |
-| `BACK + R3` | 重置位置、大小和透明度 |
+| 按住 `BACK` + 按住 `LB` + 十字键上` | 放大通知 |
+| 按住 `BACK` + 按住 `LB` + 十字键下` | 缩小通知 |
+| 按住 `BACK` + 按住 `LB` + 十字键左` | 降低背景不透明度 |
+| 按住 `BACK` + 按住 `LB` + 十字键右` | 提高背景不透明度 |
+| 按住 `BACK` + R3` | 重置位置、大小和透明度 |
 
 键盘：
 
@@ -264,6 +264,11 @@ package-release.bat 1.0.0
 ```
 
 输出位于 `dist`。脚本会打包 `dsound.dll`、精简 `dsound.ini`、两份官方语言文件、安装说明和用户文档，并生成 SHA-256。
+
+## 版权归属
+
+Dangerous Driving 由 Three Fields Entertainment 创作
+Dangerous Driving 是 Three Fields Entertainment Limited 的商标
 
 ---
 
@@ -395,11 +400,11 @@ Controller:
 | Combination | Action |
 |---|---|
 | Hold `BACK` + D-pad | Move the notification in screen direction |
-| `BACK + LB + D-pad Up` | Increase notification size |
-| `BACK + LB + D-pad Down` | Decrease notification size |
-| `BACK + LB + D-pad Left` | Reduce panel opacity |
-| `BACK + LB + D-pad Right` | Increase panel opacity |
-| `BACK + R3` | Reset position, size, and opacity |
+| Hold `BACK` + Hold `LB` + D-pad Up` | Increase notification size |
+| Hold `BACK` + Hold `LB` + D-pad Down` | Decrease notification size |
+| Hold `BACK` + Hold `LB` + D-pad Left` | Reduce panel opacity |
+| Hold `BACK` + Hold `LB` + D-pad Right` | Increase panel opacity |
+| Hold `BACK` + R3` | Reset position, size, and opacity |
 
 Keyboard:
 
@@ -535,4 +540,9 @@ Output is written to `dist`. The script packages `dsound.dll`, the simplified `d
 ## DirectSound export ordinal fix
 
 This release candidate explicitly pins all DirectSound/COM export ordinals in `dsound.def`, preventing loader-time failures when the game imports by ordinal. If you previously saw an “ordinal 12 not found” error, rebuild from this version.
+
+## Copyright Ownership
+
+Dangerous Driving created by Three Fields Entertainment.
+Dangerous Driving is a trademark of Three Fields Entertainment Limited.
 
