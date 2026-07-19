@@ -115,7 +115,7 @@ XInput 手柄：
 |---|---|
 | `LB + 十字键左` | 上一张专辑 |
 | `LB + 十字键右` | 下一张专辑 |
-| `LB + 十字键下` | 切换播放模式并保存 |
+| `LB + 十字键下` | 切换循环模式并保存 |
 | `LB + 十字键上` | 显示当前曲目、专辑和模式 |
 
 严格互斥规则：
@@ -376,7 +376,7 @@ XInput controller:
 |---|---|
 | `LB + D-pad Left` | Previous album |
 | `LB + D-pad Right` | Next album |
-| `LB + D-pad Down` | Cycle and save play mode |
+| `LB + D-pad Down` | Cycle and save loop mode |
 | `LB + D-pad Up` | Show current track, album, and mode |
 
 Strict isolation rules:
