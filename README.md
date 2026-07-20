@@ -8,7 +8,7 @@
 
 ## 简体中文
 
-这是一个面向 **Dangerous Driving（Windows x64）** 的 `dsound.dll` 代理插件。它把游戏原有 Spotify 控制接口连接到本地 FMOD 播放器，不登录 Spotify，也不会修改游戏存档中的账号、令牌或授权信息。
+这是一个面向 **[Dangerous Driving](https://store.epicgames.com/p/dangerous-driving)** 的 `dsound.dll` 代理插件。它把游戏原有 Spotify 控制接口连接到本地 FMOD 播放器，不登录 Spotify，也不会修改游戏存档中的账号、令牌或授权信息。
 
 ### 主要功能
 
@@ -274,7 +274,7 @@ Dangerous Driving 是 Three Fields Entertainment Limited 的商标
 
 ## English
 
-This is a `dsound.dll` proxy plugin for **Dangerous Driving (Windows x64)**. It redirects the game's original Spotify control interface to a local FMOD player without signing in to Spotify or modifying saved accounts, tokens, or authorization data.
+This is a `dsound.dll` proxy plugin for **[Dangerous Driving](https://store.epicgames.com/p/dangerous-driving)**. It redirects the game's original Spotify control interface to a local FMOD player without signing in to Spotify or modifying saved accounts, tokens, or authorization data.
 
 ### Main features
 
