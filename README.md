@@ -1,4 +1,4 @@
-﻿# Dangerous Driving Local Music
+# Dangerous Driving Local Music
 
 ---
 
@@ -28,13 +28,15 @@
 
 ### 安装
 
-把发行包中的文件放到：
+发行包同时提供 **DLL 代理模式**和 **ASI 插件模式**。`dsound.dll` 与 `LocalMusic.asi` 来自同一个编译文件，二进制内容完全相同，区别只有文件名；不需要为 ASI 形式单独编译另一份程序。
+
+#### DLL 代理模式
+
+不需要额外安装 ASI Loader。把以下文件放到：
 
 ```text
 DangerousDriving\Binaries\Win64\
 ```
-
-运行时文件：
 
 ```text
 dsound.dll
@@ -43,11 +45,30 @@ dsound.zh-hans.ini
 dsound.en-us.ini
 ```
 
-默认音乐目录：
+#### ASI 插件模式
+
+需要游戏已经安装可用的 ASI Loader。把以下文件放到：
+
+```text
+DangerousDriving\Binaries\Win64\scripts\
+```
+
+```text
+LocalMusic.asi
+LocalMusic.ini
+LocalMusic.zh-hans.ini
+LocalMusic.en-us.ini
+```
+
+发行包中的 `LocalMusic.asi` 是由同一份 `dsound.dll` 直接复制并改名得到的。两种模式任选其一即可；若两个文件同时存在，进程级单实例机制只允许其中一个实例初始化本地播放器、通知窗口和游戏 Hook，避免双重播放和重复补丁。通常由启动更早的 `dsound.dll` 取得运行权。需要让两种形式使用不同配置时，应只启用其中一种。
+
+无论使用哪种模式，默认音乐目录都是：
 
 ```text
 DangerousDriving\Content\Music\
 ```
+
+`MusicPath` 的相对路径始终以游戏主程序所在的 `DangerousDriving\Binaries\Win64` 为基准；ASI 位于 `scripts` 目录时，也不会错误解析到 `Binaries\Content\Music`。FMOD 同样从游戏目录及其 `Plugins\FMODStudio` 路径查找，不以 `scripts` 为基准。
 
 ### 音乐目录与专辑结构
 
@@ -263,7 +284,7 @@ build-release.bat
 package-release.bat 1.0.0
 ```
 
-输出位于 `dist`。脚本会打包 `dsound.dll`、精简 `dsound.ini`、两份官方语言文件、安装说明和用户文档，并生成 SHA-256。
+输出位于 `dist`。脚本会从同一个编译产物生成 `DLL版` 与 `ASI版` 两个目录，验证 `dsound.dll` 和 `LocalMusic.asi` 二进制完全一致，打包各自同名配置与语言文件、README、INI 说明和更新记录，并生成 SHA-256。
 
 ## 版权归属
 
@@ -294,13 +315,15 @@ This is a `dsound.dll` proxy plugin for **[Dangerous Driving](https://store.epic
 
 ### Installation
 
-Copy the release files to:
+The release provides both a **DLL proxy mode** and an **ASI plugin mode**. `dsound.dll` and `LocalMusic.asi` are copies of the same compiled binary and differ only by filename; the ASI form does not require a separate build.
+
+#### DLL proxy mode
+
+No separate ASI Loader is required. Place these files in:
 
 ```text
 DangerousDriving\Binaries\Win64\
 ```
-
-Runtime files:
 
 ```text
 dsound.dll
@@ -309,11 +332,30 @@ dsound.zh-hans.ini
 dsound.en-us.ini
 ```
 
-The default music directory is:
+#### ASI plugin mode
+
+A working ASI Loader is required. Place these files in:
+
+```text
+DangerousDriving\Binaries\Win64\scripts\
+```
+
+```text
+LocalMusic.asi
+LocalMusic.ini
+LocalMusic.zh-hans.ini
+LocalMusic.en-us.ini
+```
+
+The packaged `LocalMusic.asi` is created by copying and renaming the same `dsound.dll` binary. Either deployment mode may be used on its own. If both files are present, a process-wide singleton allows only one instance to initialize the local player, notification window, and game hooks, preventing duplicate playback and duplicate patches. The earlier-loading `dsound.dll` normally becomes active. Install only one form when the two forms need separate configurations.
+
+The default music directory is the same in either mode:
 
 ```text
 DangerousDriving\Content\Music\
 ```
+
+Relative `MusicPath` values are always resolved from the main executable directory, `DangerousDriving\Binaries\Win64`. An ASI stored in `scripts` therefore never resolves the default path as `Binaries\Content\Music`. FMOD is likewise located from the game directory and its `Plugins\FMODStudio` path, never relative to `scripts`.
 
 ### Music folders and album structure
 
@@ -530,7 +572,7 @@ Create a distributable ZIP with:
 package-release.bat 1.0.0
 ```
 
-Output is written to `dist`. The script packages `dsound.dll`, the simplified `dsound.ini`, both official language files, installation instructions, user documentation, and a SHA-256 file.
+Output is written to `dist`. The script creates separate `DLL` and `ASI` directories from the same compiled binary, verifies that `dsound.dll` and `LocalMusic.asi` are byte-identical, packages the matching configuration and language files together with the README, INI guide, and changelog, and generates SHA-256 files.
 
 
 ## DirectSound 导出序号修复
