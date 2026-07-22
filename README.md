@@ -8,7 +8,7 @@
 
 ## 简体中文
 
-这是一个面向 **[Dangerous Driving](https://store.epicgames.com/p/dangerous-driving)** 的 `dsound.dll` 代理插件。它把游戏原有 Spotify 控制接口连接到本地 FMOD 播放器，不登录 Spotify，也不会修改游戏存档中的账号、令牌或授权信息。
+这是一个面向 **[Dangerous Driving](https://store.epicgames.com/p/dangerous-driving)** 的 `dsound.dll`/`asi` 代理插件。它把游戏原有 Spotify 控制接口连接到本地 FMOD 播放器，不登录 Spotify，也不会修改游戏存档中的账号、令牌或授权信息。
 
 ### 主要功能
 
