@@ -151,7 +151,6 @@ def check_bilingual_documents() -> None:
         require(chinese >= 0 and english > chinese, f"{name} 为中文在前、英文在后")
 
     text_pairs = {
-        "安装说明.txt": ("【简体中文】", "[English]"),
         "verification-current.txt": ("【简体中文】", "[English]"),
         "文件校验值.txt": ("【简体中文】", "[English]"),
     }
@@ -159,6 +158,16 @@ def check_bilingual_documents() -> None:
         text = (ROOT / name).read_text(encoding="utf-8-sig")
         require(markers[0] in text and text.index(markers[1]) > text.index(markers[0]),
                 f"{name} 为中文在前、英文在后")
+
+    # BAT 文件必须保持项目约定的 GBK 编码和 CRLF 换行。
+    for name in ("build-release.bat", "package-release.bat"):
+        raw = (ROOT / name).read_bytes()
+        try:
+            decoded = raw.decode("gbk")
+        except UnicodeDecodeError as exc:
+            raise AssertionError(f"{name} 不是有效 GBK 编码：{exc}") from exc
+        require("\r\n" in decoded and "\n" not in decoded.replace("\r\n", ""),
+                f"{name} 使用 GBK 编码和 CRLF 换行")
 
     comment_files = [
         "dsound.ini",

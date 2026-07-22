@@ -1,4 +1,4 @@
-// 配置数据结构：定义播放、认证、音量与 EXE 兼容策略。
+﻿// 配置数据结构：定义播放、认证、音量与 EXE 兼容策略。
 // 字段名保持英文以对应 INI 键和现有代码接口，注释统一使用简体中文。
 #pragma once
 #include "Common.h"
@@ -137,7 +137,7 @@ struct Config {
 
     // 加载完整配置、创建缺失模板并把相对音乐路径解析到游戏目录。
     // 所有外部数值都在这里限制范围，后续模块只接收可用的 Config 快照。
-    static Config Load(const std::filesystem::path& ini_path, const std::filesystem::path& dll_directory);
+    static Config Load(const std::filesystem::path& ini_path, const std::filesystem::path& game_binary_directory);
 };
 
 // 封装 GetPrivateProfileStringW，动态扩大缓冲区以读取较长配置值。

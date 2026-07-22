@@ -100,7 +100,8 @@ def check_distribution_contract() -> None:
             "主配置默认使用 Language=auto")
     cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8-sig")
     require("src/Localization.cpp" in cmake, "CMake 编译 Localization.cpp")
-    package = (ROOT / "package-release.bat").read_text(encoding="utf-8-sig")
+    # BAT 按项目规范使用 GBK+CRLF，不能按 UTF-8 读取。
+    package = (ROOT / "package-release.bat").read_text(encoding="gbk")
     require("dsound.zh-hans.ini" in package and "dsound.en-us.ini" in package,
             "发行脚本复制两份官方语言文件")
     localization = (SRC / "Localization.cpp").read_text(encoding="utf-8-sig")

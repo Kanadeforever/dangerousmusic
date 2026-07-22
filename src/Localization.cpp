@@ -1,4 +1,4 @@
-// 运行时国际化实现：解析 UTF-8/UTF-16 INI、规范化语言标签并执行分层回退。
+﻿// 运行时国际化实现：解析 UTF-8/UTF-16 INI、规范化语言标签并执行分层回退。
 #include "Localization.h"
 
 #include <iterator>
@@ -71,7 +71,7 @@ constexpr BuiltInEntry kBuiltInZhHans[] = {
     {L"MessageBox.EmptyLibraryBody", L"没有找到可播放的本地音乐。\n\n音乐目录：{0}\n\n游戏会继续启动。认证将在内存中直接视为成功，存档中的 token 不会被读取、清空或写回；没有曲目时不会播放 BGM。\n添加音乐后可按 F5 重新扫描；播放器仍会等待游戏发出播放指令。"},
 
     {L"Config.Header", L"LocalMusic——发行版用户配置"},
-    {L"Config.PlaceFile", L"请把本文件与 {0} 一起放在 DangerousDriving\\Binaries\\Win64。"},
+    {L"Config.PlaceFile", L"请把本文件与 {0} 放在同一目录。DLL 代理放在 DangerousDriving\\Binaries\\Win64；ASI 插件放在其 scripts 子目录。"},
     {L"Config.HiddenOptions", L"未显示的播放、认证、Hook、专辑、封面、预加载和高 DPI 选项使用稳定内置值。"},
     {L"Config.Restart", L"修改普通配置后需要重新启动游戏；PlayMode 与通知布局可在游戏内修改并自动保存。"},
     {L"Config.LayoutHeader", L"游戏内通知布局调整："},

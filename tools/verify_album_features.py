@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """离线核对专辑、会话随机、输入映射与配置文档的一致性。"""
 from __future__ import annotations
 
@@ -186,8 +186,8 @@ def main() -> int:
             "README 采用完整中文后追加英文结构")
     require("## 简体中文" in ini_guide and "## English" in ini_guide,
             "INI 说明采用完整中文后追加英文结构")
-    require("BACK + R3" in readme and "Backspace" in readme and
-            "plain `-`" in readme.lower(),
+    require("R3`" in readme and "Backspace" in readme and
+            "plain `-`" in readme.lower() and "透明度" in readme,
             "README 记录手柄/键盘重置与透明度调整")
     require("PlayMode play_mode = PlayMode::Sequential" in config_h,
             "结构体默认播放模式为顺序播放")

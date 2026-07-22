@@ -417,3 +417,28 @@
 - Added immediate or deferred successful authentication callbacks.
 - Kept old saved tokens intact and did not write SaveGame data.
 - Added validation for the current executable's dispatcher layout and delegate broadcast function.
+
+## 2026-07-22 — DLL / ASI 同源双形态与路径锚点修复
+
+- 保持“严格输入互斥修复版”为唯一运行代码基底，没有建立第二套 ASI 源码。
+- 同一个 `dsound.dll` 构建产物可直接改名为 `LocalMusic.asi`；CMake 和 BAT 只编译一次，并对两个文件执行逐字节比较与 SHA-256 一致性检查。
+- 修复 ASI 位于 `Binaries\Win64\scripts` 时的路径错误：
+  - `MusicPath` 相对路径改为始终以游戏主 EXE 所在的 `Binaries\Win64` 为基准；
+  - `fmod64.dll` 改为从游戏 EXE 目录和 `Plugins\FMODStudio\Binaries\Win64` 查找；
+  - INI、日志和语言文件仍跟随插件实际文件名与所在目录。
+- 新增进程级单实例互斥。`dsound.dll` 与 `LocalMusic.asi` 同时载入时，只允许一个副本初始化播放器、通知窗口和游戏 Hook，避免双重播放与重复补丁。
+- ASI 检测到游戏目录内的同源 `dsound.dll` 已载入时会短暂让出调度，使承担 DirectSound 代理职责的 DLL 实例优先取得运行权。
+- 新增 DLL 版与 ASI 版成套配置和语言文件，发行包分别放入 `DLL版` 与 `ASI版` 目录。
+- 更新 README、INI 配置说明、最终版本说明、发行检查清单与源码审校报告；安装方式统一维护在 README 中，不再另建安装说明。
+
+## 2026-07-22 — Single-source DLL / ASI dual deployment
+
+- Kept the strict input-isolation revision as the only runtime codebase; no separate ASI source tree was introduced.
+- The compiled `dsound.dll` can be renamed directly to `LocalMusic.asi`. CMake and BAT compile once, then verify byte identity and matching SHA-256 values.
+- Fixed ASI path resolution under `Binaries\Win64\scripts`:
+  - relative `MusicPath` values now always use the main executable directory;
+  - `fmod64.dll` is resolved from the executable directory and `Plugins\FMODStudio\Binaries\Win64`;
+  - INI, log, and language files still follow the actual module name and location.
+- Added a process-wide singleton so simultaneous DLL and ASI loads cannot create duplicate players, overlays, or hooks.
+- Added complete DLL-form and ASI-form companion files and updated all user/developer documentation.
+

@@ -1,4 +1,4 @@
-// DLL 入口与工作线程：初始化日志、配置、播放器和游戏 Hook，并轮询输入及 FMOD 更新。
+﻿// DLL 入口与工作线程：初始化日志、配置、播放器和游戏 Hook，并轮询输入及 FMOD 更新。
 // DllMain 中只创建线程/发送停止信号，避免在加载器锁内执行复杂逻辑。
 #include "Common.h"
 #include "AlbumControls.h"
@@ -16,6 +16,74 @@ namespace {
 HMODULE g_module = nullptr;
 std::atomic<bool> g_stop{false};
 HANDLE g_worker = nullptr;
+HANDLE g_instance_mutex = nullptr;
+
+// 取得游戏主 EXE 所在的 Binaries\Win64 目录。
+// 资源根目录必须以主 EXE 为锚点，不能以插件模块目录为锚点：ASI 通常位于
+// Binaries\Win64\scripts，若继续按模块目录解析默认相对路径，就会错误落到
+// Binaries\Content\Music，并且无法找到 Plugins\FMODStudio 下的 fmod64.dll。
+std::filesystem::path ResolveGameBinaryDirectory(const std::filesystem::path& module_directory) {
+    std::filesystem::path game_binary_directory = GetModuleDirectory(GetModuleHandleW(nullptr));
+    if (game_binary_directory.empty()) {
+        // 极端情况下主 EXE 路径读取失败，退回插件目录，至少保持 DLL 代理旧行为。
+        game_binary_directory = module_directory;
+    }
+    std::error_code ec;
+    const std::filesystem::path canonical = std::filesystem::weakly_canonical(game_binary_directory, ec);
+    return ec ? game_binary_directory.lexically_normal() : canonical;
+}
+
+// 判断游戏目录内的 dsound.dll 代理是否已经作为独立模块载入。
+// 仅 ASI 工作线程使用：如果同源 dsound.dll 同时存在，短暂让出调度机会，
+// 使启动更早、承担 DirectSound 代理职责的 DLL 实例优先取得插件运行权。
+bool GameLocalDsoundLoaded(const std::filesystem::path& game_binary_directory) {
+    HMODULE dsound_module = GetModuleHandleW(L"dsound.dll");
+    if (!dsound_module || dsound_module == g_module) {
+        return false;
+    }
+    const std::filesystem::path dsound_path = GetModulePath(dsound_module);
+    if (dsound_path.empty()) {
+        return false;
+    }
+    std::error_code parent_ec;
+    std::error_code expected_ec;
+    const std::filesystem::path parent =
+        std::filesystem::weakly_canonical(dsound_path.parent_path(), parent_ec);
+    const std::filesystem::path expected =
+        std::filesystem::weakly_canonical(game_binary_directory, expected_ec);
+    return !parent_ec && !expected_ec &&
+           ToLower(parent.wstring()) == ToLower(expected.wstring());
+}
+
+// 取得进程级唯一运行权，防止同一二进制以 dsound.dll 与 LocalMusic.asi
+// 两个文件名同时载入时重复创建播放器、通知窗口和游戏 Hook。
+// DirectSound 导出属于各模块自身，不受该互斥影响；未取得运行权的副本只保留导出。
+bool AcquireProcessInstance(const std::filesystem::path& module_path,
+                            const std::filesystem::path& game_binary_directory) {
+    const std::wstring extension = ToLower(module_path.extension().wstring());
+    if (extension == L".asi" && GameLocalDsoundLoaded(game_binary_directory)) {
+        // ASI Loader 通常稍晚于代理 DLL 工作。短暂延迟可稳定让 dsound.dll 成为
+        // 主实例；只有 ASI 单独安装时不会命中此分支，因此不会增加额外等待。
+        Sleep(250);
+    }
+
+    wchar_t mutex_name[160]{};
+    std::swprintf(mutex_name, std::size(mutex_name),
+                  L"Local\\DangerousDriving.LocalMusic.Instance.%lu",
+                  static_cast<unsigned long>(GetCurrentProcessId()));
+    HANDLE mutex = CreateMutexW(nullptr, FALSE, mutex_name);
+    if (!mutex) {
+        // 创建互斥量失败时采用 fail-open：单文件安装仍应继续工作。
+        // 这种系统级失败极少见；代价仅是同时放置 DLL/ASI 时可能重复初始化。
+        return true;
+    }
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        CloseHandle(mutex);
+        return false;
+    }
+    g_instance_mutex = mutex;
+    return true;
+}
 
 // 读取 Win32 虚拟键的按下沿，用于可选的全局媒体键与 F5 重扫。
 // 该辅助只消费低位边沿，不用于需要长按重复的布局控制。
@@ -54,17 +122,26 @@ DWORD WINAPI WorkerThread(void*) {
                        reinterpret_cast<LPCWSTR>(&g_module), &pinned_module);
     (void)pinned_module;
 
-    const std::filesystem::path dll_path = GetModulePath(g_module);
-    const std::filesystem::path dll_directory = dll_path.parent_path();
-    std::filesystem::path ini_path = dll_path;
+    const std::filesystem::path module_path = GetModulePath(g_module);
+    const std::filesystem::path module_directory = module_path.parent_path();
+    const std::filesystem::path game_binary_directory =
+        ResolveGameBinaryDirectory(module_directory);
+
+    // DLL 与 ASI 可以由同一二进制直接改名得到，也允许同时放置。只有取得
+    // 进程级运行权的实例执行本地播放器和 Hook；另一实例立即结束工作线程。
+    if (!AcquireProcessInstance(module_path, game_binary_directory)) {
+        return 0;
+    }
+
+    std::filesystem::path ini_path = module_path;
     ini_path.replace_extension(L".ini");
-    std::filesystem::path log_path = dll_path;
+    std::filesystem::path log_path = module_path;
     log_path.replace_extension(L".log");
 
     // 语言层必须早于日志和首次配置模板初始化：日志标题/级别、启动诊断与
     // 自动生成 INI 的注释都需要使用同一份已解析语言。Language 只读取 ASCII
     // 配置键，因此主 INI 尚不存在时会安全按 auto 处理。
-    (void)loc::Initialize(dll_path, ini_path);
+    (void)loc::Initialize(module_path, ini_path);
 
     // 必须在创建、截断或打开日志文件之前直接预读总开关。
     // EnableLogging=false 时不调用 Logger::Initialize，因此本次进程不会
@@ -72,13 +149,13 @@ DWORD WINAPI WorkerThread(void*) {
     const bool logging_enabled = ReadLoggingEnabled(ini_path);
     if (logging_enabled) {
         log::Initialize(log_path);
-        log::Info(loc::Format(L"Log.DllMain.PluginLoaded", {dll_path.wstring()}));
+        log::Info(loc::Format(L"Log.DllMain.PluginLoaded", {module_path.wstring()}));
         for (const auto& diagnostic : loc::StartupDiagnostics()) {
             diagnostic.warning ? log::Warn(diagnostic.message) : log::Info(diagnostic.message);
         }
     }
 
-    const Config config = Config::Load(ini_path, dll_directory);
+    const Config config = Config::Load(ini_path, game_binary_directory);
 
     // DPI 模式必须在创建任何插件窗口前设置。Windows 只允许进程默认 DPI
     // 模式设置一次；若游戏 EXE 的 manifest 已经声明 DPI 感知，这里会保持
@@ -117,7 +194,7 @@ DWORD WINAPI WorkerThread(void*) {
     // 仍会继续初始化，绝不能因为非核心 UI 功能阻止游戏启动。
     (void)NowPlayingOverlay::Instance().Initialize(config);
 
-    const bool player_initialized = LocalPlayer::Instance().Initialize(config, dll_directory);
+    const bool player_initialized = LocalPlayer::Instance().Initialize(config, game_binary_directory);
     (void)album_controls.Initialize(config.enable_album_controls);
     if (!player_initialized) {
         log::Error(loc::Text(L"Log.DllMain.PlayerInitFailed"));
@@ -170,6 +247,10 @@ DWORD WINAPI WorkerThread(void*) {
     NowPlayingOverlay::Instance().Shutdown();
     LocalPlayer::Instance().Shutdown();
     log::Info(loc::Text(L"Log.DllMain.WorkerStopped"));
+    if (g_instance_mutex) {
+        CloseHandle(g_instance_mutex);
+        g_instance_mutex = nullptr;
+    }
     return 0;
 }
 

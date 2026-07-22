@@ -1,15 +1,23 @@
-﻿# `dsound.ini` 配置说明
+﻿# LocalMusic 配置说明（DLL / ASI 同源双形态）
 
 ## 简体中文
 
-发行版普通配置文件只保留用户真正会调整的项目。配置文件应与 DLL 同目录、同主文件名：
+发行版普通配置文件只保留用户真正会调整的项目。配置、日志和语言文件始终跟随实际模块的主文件名：
 
 ```text
-dsound.dll
-dsound.ini
+DLL 形式：dsound.dll + dsound.ini + dsound.<语言>.ini + dsound.log
+ASI 形式：LocalMusic.asi + LocalMusic.ini + LocalMusic.<语言>.ini + LocalMusic.log
 ```
 
-Windows 文件系统通常不区分大小写，因此 `DSOUND.ini` 与 `dsound.ini` 会指向同一个文件。普通配置修改后需要重新启动游戏；播放模式与通知布局支持在游戏内修改并自动写回。
+`dsound.dll` 与 `LocalMusic.asi` 是同一个编译文件的两个文件名，二进制内容必须完全相同。Windows 文件系统通常不区分大小写，因此 `DSOUND.ini` 与 `dsound.ini` 会指向同一个文件。普通配置修改后需要重新启动游戏；播放模式与通知布局支持在游戏内修改并自动写回。
+
+## DLL / ASI 路径规则
+
+- 模块同名文件（INI、日志、语言文件）放在模块旁边；
+- `MusicPath` 相对路径固定以游戏 EXE 目录为基准；
+- `fmod64.dll` 固定从游戏 EXE 目录和 `..\..\Plugins\FMODStudio\Binaries\Win64` 查找；
+- DLL 与 ASI 同时存在时，进程级单实例互斥只允许一个副本初始化播放器、通知窗口和 Hook；
+- 若两种形式需要不同配置，不要同时安装，应选择其中一种。
 
 ## 完整默认配置
 
@@ -41,24 +49,24 @@ Language=auto
 
 - `auto`：中文 Windows UI 使用 `zh-hans`，其他语言使用 `en-us`。
 - `zh-hans`、`en-us`：显式选择官方语言。
-- 其他小写 BCP 47 风格标签：加载用户语言文件，例如 `Language=ja-jp` 对应 `dsound.ja-jp.ini`。
+- 其他小写 BCP 47 风格标签：加载用户语言文件，例如 DLL 形式的 `dsound.ja-jp.ini`，或 ASI 形式的 `LocalMusic.ja-jp.ini`。
 
-文件名必须跟随实际 DLL 主文件名。加载失败或单个键缺失时依次回退到 `en-us` 和 DLL 内置 `zh-hans`。
+文件名必须跟随实际模块主文件名。加载失败或单个键缺失时依次回退到 `en-us` 和二进制内置 `zh-hans`。
 
 ## `EnableLogging`
 
 插件文件日志总开关：
 
-- `true`：启动时创建或截断 `dsound.log`，并写入本次运行的诊断信息；
-- `false`：不创建、不截断、也不追加 `dsound.log`。
+- `true`：启动时创建或截断同名日志（DLL 为 `dsound.log`，ASI 为 `LocalMusic.log`），并写入本次运行的诊断信息；
+- `false`：不创建、不截断、也不追加同名日志。
 
 关闭后必须重启游戏才会生效。已经存在的旧日志会保持原样，插件不会擅自删除用户文件。关闭日志不会影响音乐播放、通知窗口、播放模式保存或布局保存。
 
-此开关只控制插件自己的 `dsound.log`，不控制 Windows 事件查看器、系统崩溃记录或其他程序的日志。
+此开关只控制插件自己的同名日志，不控制 Windows 事件查看器、系统崩溃记录或其他程序的日志。
 
 ## `MusicPath`
 
-音乐目录。相对路径以 `DangerousDriving\Binaries\Win64` 为基准，也可以使用绝对路径。
+音乐目录。相对路径始终以游戏主 EXE 所在的 `DangerousDriving\Binaries\Win64` 为基准，也可以使用绝对路径。即使 ASI 位于 `Binaries\Win64\scripts`，也不会以 `scripts` 为基准。
 
 默认值：
 
@@ -325,14 +333,22 @@ Cover=cover.jpg
 
 ## English
 
-The normal release configuration only exposes settings that regular users are expected to change. The configuration file must be in the same directory and use the same base name as the DLL:
+The normal release configuration only exposes settings regular users are expected to change. Configuration, log, and language filenames follow the actual module basename:
 
 ```text
-dsound.dll
-dsound.ini
+DLL form: dsound.dll + dsound.ini + dsound.<language>.ini + dsound.log
+ASI form: LocalMusic.asi + LocalMusic.ini + LocalMusic.<language>.ini + LocalMusic.log
 ```
 
-Windows normally treats filenames case-insensitively, so `DSOUND.ini` and `dsound.ini` refer to the same file. Restart the game after changing normal settings. Play mode and notification layout can also be changed in game and are written back automatically.
+`dsound.dll` and `LocalMusic.asi` are two names for the same compiled file and must be byte-identical. Windows normally treats filenames case-insensitively, so `DSOUND.ini` and `dsound.ini` refer to the same file. Restart the game after changing normal settings. Play mode and notification layout can also be changed in game and are written back automatically.
+
+## DLL / ASI path rules
+
+- module companion files (INI, log, language files) stay beside the module;
+- relative `MusicPath` values use the game executable directory;
+- `fmod64.dll` is resolved from the executable directory and `..\..\Plugins\FMODStudio\Binaries\Win64`;
+- when DLL and ASI are both present, a process-wide singleton allows only one copy to initialize the player, overlay, and hooks;
+- install only one form when different configurations are required.
 
 ## Complete default configuration
 
@@ -364,24 +380,24 @@ Controls the runtime language of logs, notifications, message boxes, and comment
 
 - `auto`: Chinese Windows UI uses `zh-hans`; other UI languages use `en-us`.
 - `zh-hans` or `en-us`: explicitly selects an official language.
-- Another lowercase BCP 47-style tag: loads a user file, for example `Language=ja-jp` maps to `dsound.ja-jp.ini`.
+- Another lowercase BCP 47-style tag: loads a user file such as `dsound.ja-jp.ini` for DLL deployment or `LocalMusic.ja-jp.ini` for ASI deployment.
 
-The filename must follow the actual proxy DLL basename. A missing file or individual key falls back to `en-us`, then to the DLL's built-in `zh-hans` text.
+The filename must follow the actual module basename. A missing file or individual key falls back to `en-us`, then to the binary's built-in `zh-hans` text.
 
 ## `EnableLogging`
 
 Master switch for the plugin's file log:
 
-- `true`: create or truncate `dsound.log` at startup and write diagnostics for the current run;
-- `false`: do not create, truncate, or append `dsound.log`.
+- `true`: create or truncate the matching log (`dsound.log` for DLL or `LocalMusic.log` for ASI) and write diagnostics for the current run;
+- `false`: do not create, truncate, or append the matching log.
 
 Restart the game after changing this setting. Existing log files are left untouched. Disabling logging does not affect playback, notifications, play-mode persistence, or layout persistence.
 
-This switch only controls the plugin's own `dsound.log`; it does not control Windows Event Viewer, operating-system crash records, or logs from other software.
+This switch only controls the plugin's matching log file; it does not control Windows Event Viewer, operating-system crash records, or logs from other software.
 
 ## `MusicPath`
 
-Music directory. Relative paths are resolved from `DangerousDriving\Binaries\Win64`; absolute paths are also accepted.
+Music directory. Relative paths are always resolved from the main executable directory, `DangerousDriving\Binaries\Win64`; absolute paths are also accepted. An ASI stored in `Binaries\Win64\scripts` never uses `scripts` as the base.
 
 Default:
 

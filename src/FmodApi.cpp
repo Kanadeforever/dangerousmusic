@@ -1,4 +1,4 @@
-// FMOD 动态绑定实现：优先复用游戏已加载的 fmod64.dll，否则从游戏插件目录加载。
+﻿// FMOD 动态绑定实现：优先复用游戏已加载的 fmod64.dll，否则从游戏插件目录加载。
 // 必需导出缺失时初始化失败；END 回调相关导出缺失时降级为轮询。
 #include "FmodApi.h"
 #include "Logger.h"
@@ -8,14 +8,14 @@ namespace localmusic {
 
 // 从游戏目录或 FMOD 插件目录加载 fmod64.dll，并解析低层播放 API。
 // 核心函数缺失会整体失败；END 回调等增强接口允许缺失并由播放器启用备用检测。
-bool FmodApi::Load(const std::filesystem::path& dll_directory) {
+bool FmodApi::Load(const std::filesystem::path& game_binary_directory) {
     module_ = GetModuleHandleW(L"fmod64.dll");
     owns_module_ = false;
 
     if (!module_) {
         const std::vector<std::filesystem::path> candidates{
-            dll_directory / L"fmod64.dll",
-            dll_directory / L"..\\..\\Plugins\\FMODStudio\\Binaries\\Win64\\fmod64.dll",
+            game_binary_directory / L"fmod64.dll",
+            game_binary_directory / L"..\\..\\Plugins\\FMODStudio\\Binaries\\Win64\\fmod64.dll",
         };
         for (const auto& candidate : candidates) {
             module_ = LoadLibraryW(candidate.lexically_normal().c_str());

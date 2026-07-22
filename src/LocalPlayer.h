@@ -1,4 +1,4 @@
-// 本地播放器核心状态机：管理文件夹专辑、会话播放队列、FMOD Channel、
+﻿// 本地播放器核心状态机：管理文件夹专辑、会话播放队列、FMOD Channel、
 // 自动切歌、预加载、双层音量与通知状态。
 //
 // 线程规则：除 FMOD END 回调只投递原子事件外，全部可变播放状态都由 mutex_ 保护。
@@ -30,7 +30,7 @@ public:
 
     // 复制配置、加载 FMOD、创建 System、扫描曲库并建立初始播放队列。
     // 失败时按已创建资源逆序清理，不让半初始化状态进入 Update。
-    bool Initialize(const Config& config, const std::filesystem::path& dll_directory);
+    bool Initialize(const Config& config, const std::filesystem::path& game_binary_directory);
     // 停止 Channel、释放预加载/当前 Sound、关闭 FMOD System 并清空曲库状态。
     // 持有播放器互斥锁，确保退出时没有其他控制操作并发修改资源。
     void Shutdown();

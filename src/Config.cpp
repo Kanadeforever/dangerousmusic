@@ -1,4 +1,4 @@
-// 配置实现：生成默认 INI、解析用户配置并执行范围校验。
+﻿// 配置实现：生成默认 INI、解析用户配置并执行范围校验。
 // 已存在的 INI 永不自动覆盖，写入失败时安全回退到内置默认值。
 #include "Config.h"
 #include "Logger.h"
@@ -225,7 +225,7 @@ bool WriteIniFloat(const std::filesystem::path& path, const wchar_t* section, co
 
 // 加载完整配置、创建缺失模板并把相对音乐路径解析到游戏目录。
 // 所有外部数值都在这里限制范围，后续模块只接收可用的 Config 快照。
-Config Config::Load(const std::filesystem::path& ini_path, const std::filesystem::path& dll_directory) {
+Config Config::Load(const std::filesystem::path& ini_path, const std::filesystem::path& game_binary_directory) {
     (void)EnsureDefaultIniFile(ini_path);
 
     Config config;
@@ -235,7 +235,7 @@ Config Config::Load(const std::filesystem::path& ini_path, const std::filesystem
 
     std::filesystem::path music = ReadLocalString(ini_path, L"MusicPath", L"..\\..\\Content\\Music");
     if (music.is_relative()) {
-        music = dll_directory / music;
+        music = game_binary_directory / music;
     }
     std::error_code ec;
     config.music_path = std::filesystem::weakly_canonical(music, ec);

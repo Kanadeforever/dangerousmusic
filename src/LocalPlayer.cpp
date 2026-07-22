@@ -58,7 +58,7 @@ LocalPlayer& LocalPlayer::Instance() {
 
 // 复制配置、加载 FMOD、创建 System、扫描曲库并建立初始播放队列。
 // 失败时按已创建资源逆序清理，不让半初始化状态进入 Update。
-bool LocalPlayer::Initialize(const Config& config, const std::filesystem::path& dll_directory) {
+bool LocalPlayer::Initialize(const Config& config, const std::filesystem::path& game_binary_directory) {
     std::lock_guard lock(mutex_);
     if (initialized_) {
         return true;
@@ -78,7 +78,7 @@ bool LocalPlayer::Initialize(const Config& config, const std::filesystem::path& 
     auto_start_from_volume_logged_ = false;
     navigation_skip_logged_ = false;
 
-    if (!fmod_.Load(dll_directory)) {
+    if (!fmod_.Load(game_binary_directory)) {
         return false;
     }
     callback_api_active_.store(true, std::memory_order_release);

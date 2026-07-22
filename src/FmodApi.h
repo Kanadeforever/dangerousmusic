@@ -1,4 +1,4 @@
-// FMOD C API 动态绑定层：避免依赖 FMOD SDK 头文件和导入库。
+﻿// FMOD C API 动态绑定层：避免依赖 FMOD SDK 头文件和导入库。
 // 只声明项目实际使用的最小类型、常量和函数集合。
 #pragma once
 #include "Common.h"
@@ -24,7 +24,7 @@ class FmodApi {
 public:
     // 从游戏目录或 FMOD 插件目录加载 fmod64.dll，并解析低层播放 API。
     // 核心函数缺失会整体失败；END 回调等增强接口允许缺失并由播放器启用备用检测。
-    bool Load(const std::filesystem::path& dll_directory);
+    bool Load(const std::filesystem::path& game_binary_directory);
     // 清空所有 FMOD 函数指针并释放动态库。
     // 播放器必须先停止 Channel、释放 Sound/System，防止卸载后仍调用 FMOD 代码。
     void Unload();
